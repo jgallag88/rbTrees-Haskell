@@ -4,7 +4,7 @@ module RBTree where
 
 data Color = R | B deriving (Show, Eq)
 data Tree a = Empty
-              | Node Color (Tree a) a (Tree a) deriving (Show, Eq)
+              | Node Color !(Tree a) a !(Tree a) deriving (Show, Eq)
 
 insert :: Ord a => a -> Tree a -> Tree a
 insert x tree = Node B lTree val rTree
