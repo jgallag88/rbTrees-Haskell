@@ -1,5 +1,7 @@
 --Red-Black Tree implementation in Haskell, based largely on Chris Okasaki's implementation
 
+module RBTree where
+
 data Color = R | B deriving (Show, Eq)
 data Tree a = Empty
               | Node Color (Tree a) a (Tree a) deriving (Show, Eq)
