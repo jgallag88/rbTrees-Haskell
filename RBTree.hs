@@ -11,8 +11,10 @@ insert x tree = Node B lTree val rTree
         where Node _ lTree val rTree = ins x tree
               ins x (Empty _) = Node B (Empty B) x (Empty B)
               ins x (Node c lTree val rTree)
-                  | lTree == Empty B && x <  val = (Node c (Node R (Empty B) x (Empty B)) val rTree)
-                  | rTree == Empty B && x >= val = (Node c lTree val (Node R (Empty B) x (Empty B)))
+                  | lTree == Empty B && x <  val =
+                         (Node c (Node R (Empty B) x (Empty B)) val rTree)
+                  | rTree == Empty B && x >= val =
+                         (Node c lTree val (Node R (Empty B) x (Empty B)))
                   | x >= val                   = balance $ Node c lTree val (ins x rTree)
                   | otherwise                  = balance $ Node c (ins x lTree) val rTree
 
@@ -35,7 +37,8 @@ member x (Node _ lTree val rTree)
 --Pretty printer
 pprint :: Show a => Tree a -> IO () 
 pprint = putStrLn . concat . prnt
-    where prnt (Empty _) = ["----NIL\n"]  --["\n", "----NIL\n", "\n"] Nicer spacing but too much room
+    where prnt (Empty _) = ["----NIL\n"] 
+                         --["\n", "----NIL\n", "\n"] Nicer spacing but too much room
           prnt (Node c lTree value rTree) =
                      (preSpace (prnt rTree) ' ' '|') ++ 
                      ["----" ++ "(" ++ show c ++ ") " ++ show value ++ "\n"] ++ 
