@@ -45,9 +45,8 @@ pprint = putStrLn . concat . prnt
                      (preSpace (prnt lTree) '|' ' ')
           preSpace :: [String] -> Char -> Char -> [String]
           preSpace []            _  _  = []
-          preSpace (l@(c:cs):ls) c1 c2 = if c == '-'
-                                         then ("      " ++ "|"  ++ l) : preSpace ls c2 c1
-                                         else ("      " ++ [c1] ++ l) : preSpace ls c1 c2
+          preSpace (l@('-':_):ls) c1 c2 = ("      " ++ "|"  ++ l) : preSpace ls c2 c1
+          preSpace (l:ls) c1 c2         = ("      " ++ [c1] ++ l) : preSpace ls c1 c2
 
 checkInvariant :: Tree a -> Bool
 checkInvariant t = check t 0 
