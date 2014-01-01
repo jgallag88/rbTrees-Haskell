@@ -1,5 +1,7 @@
 --Red-Black Tree implementation in Haskell, based largely on Chris Okasaki's implementation
 
+{-# LANGUAGE ViewPatterns #-}
+
 module RBTree where
 
 data Color = R | B | BB deriving (Show, Eq)
@@ -21,6 +23,65 @@ balance (Node B (Node R (Node R a x b) y c) z d) = (Node R (Node B a x b) y (Nod
 balance (Node B a x (Node R (Node R b y c) z d)) = (Node R (Node B a x b) y (Node B c z d))
 balance (Node B a x (Node R b y (Node R c z d))) = (Node R (Node B a x b) y (Node B c z d))
 balance t = t
+
+delete :: Ord a => a -> Tree a -> Tree a
+delete x tree = toBlk $ delfrom tree
+    where delfrom (Empty B) = Empty B                         -- x is not in tree
+          delfrom (Node c lTree val rTree)
+              | x > val = rebalanceR $ Node c lTree val (delfrom rTree)
+              | x < val  = rebalanceL $ Node c (delfrom lTree) val rTree
+          delfrom (Node c lTree val rTree@(Node _ _ _ _)) =   -- x is internal node
+              let (rTree', succ') = delMin rTree
+              in rebalanceR $ Node c lTree succ' rTree'
+          delfrom n@(Node c lTree val rTree@(Empty _)) =      -- x is leaf node
+              let (newTree, _) = delMin n
+              in newTree
+
+--Returns minimum element from tree, along with tree with minimum element removed.
+--For use in delete function, so tree returned may not be a proper red black tree
+--(it may have a red or double-black root).
+delMin :: Tree a -> (Tree a, a)
+delMin (Node B (Empty B) min (Empty B)) = (Empty BB, min) 
+delMin (Node R (Empty B) min (Empty B)) = (Empty B, min)
+delMin (Node B (Empty B) min (Node R r x l)) = (Node B r x l, min)
+delMin (Node c l val r) = let (l', min) = delMin l
+                          in (rebalanceL $ Node c l' val r, min)
+
+--Rebalance after deletion. Use view patterns to match nodes which might be leaves
+--Case 3: let double black bubble up
+rebalanceL :: Tree a -> Tree a
+rebalanceL (Node B n@(clr -> BB) p (Node R sl s sr)) =                        --Case 2 
+    (Node B (rebalanceL (Node R n p sl)) s sr)
+rebalanceL (Node B n@(clr -> BB) p (Node B sl@(clr -> B) s sr@(clr -> B))) =  --Case 3
+    (Node BB (toBlk n) p (Node R sl s sr)) 
+rebalanceL (Node R n@(clr -> BB) p (Node B sl@(clr -> B) s sr@(clr -> B))) =  --Case 4
+    (Node B (toBlk n) p (Node R sl s sr)) 
+rebalanceL (Node c n@(clr -> BB) p (Node B sl s (Node R srl sr srr))) =       --Case 6
+    (Node c (Node B (toBlk n) p sl) s (Node B srl sr srr))
+rebalanceL (Node c n@(clr -> BB) p (Node B (Node R sll sl slr) s sr)) =       --Case 5
+    (Node c (Node B (toBlk n) p sll) sl (Node B slr s sr)) 
+rebalanceL n = n 
+
+rebalanceR :: Tree a -> Tree a
+rebalanceR (Node B (Node R sl s sr) p n@(clr -> BB)) =                        --Case 2 
+    (Node B sl s (rebalanceR (Node R n p sr)))
+rebalanceR (Node B (Node B sl@(clr -> B) s sr@(clr -> B)) p n@(clr -> BB)) =  --Case 3
+    (Node BB (Node R sl s sr) p (toBlk n)) 
+rebalanceR (Node R (Node B sl@(clr -> B) s sr@(clr -> B)) p n@(clr -> BB)) =  --Case 4
+    (Node B (Node R sl s sr) p (toBlk n)) 
+rebalanceR (Node c (Node B (Node R sll sl slr) s sr) p n@(clr -> BB)) =       --Case 6
+    (Node c (Node B sll sl slr) s (Node B sr p (toBlk n)))
+rebalanceR (Node c (Node B sl s (Node R srl sr srr)) p n@(clr -> BB)) =       --Case 5
+    (Node c (Node B sl s srl) sr (Node B srr p (toBlk n))) 
+rebalanceR n = n
+
+--Get color of node. This, along with 'toBlk' allow us to treat leaves and other nodes at the 
+-- the same time when rebalancing
+clr (Empty c) = c
+clr (Node c _ _ _) = c
+
+toBlk (Empty _) = Empty B
+toBlk (Node _ l val r) = Node B l val r
 
 member :: Ord a => a -> Tree a -> Bool
 member _ (Empty _) = False
