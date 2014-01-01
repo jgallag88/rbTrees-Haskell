@@ -66,7 +66,7 @@ rebalanceL n = n
 
 rebalanceR :: Tree a -> Tree a
 rebalanceR (Node B (Node R sl s sr) p n@(clr -> BB)) =                        --Case 2 
-    (Node B sl s (rebalanceR (Node R n p sr)))
+    (Node B sl s (rebalanceR (Node R sr p n)))
 rebalanceR (Node B (Node B sl@(clr -> B) s sr@(clr -> B)) p n@(clr -> BB)) =  --Case 3
     (Node BB (Node R sl s sr) p (toBlk n)) 
 rebalanceR (Node R (Node B sl@(clr -> B) s sr@(clr -> B)) p n@(clr -> BB)) =  --Case 4
