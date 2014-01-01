@@ -7,16 +7,11 @@ data Tree a = Empty Color
               | Node Color !(Tree a) a !(Tree a) deriving (Show, Eq)
 
 insert :: Ord a => a -> Tree a -> Tree a
-insert x tree = Node B lTree val rTree
-        where Node _ lTree val rTree = ins x tree
-              ins x (Empty _) = Node B (Empty B) x (Empty B)
-              ins x (Node c lTree val rTree)
-                  | lTree == Empty B && x <  val =
-                         (Node c (Node R (Empty B) x (Empty B)) val rTree)
-                  | rTree == Empty B && x >= val =
-                         (Node c lTree val (Node R (Empty B) x (Empty B)))
-                  | x >= val                   = balance $ Node c lTree val (ins x rTree)
-                  | otherwise                  = balance $ Node c (ins x lTree) val rTree
+insert x tree = toBlk $ ins tree
+        where ins (Empty _) = Node R (Empty B) x (Empty B)
+              ins n@(Node c lTree val rTree)
+                  | x >= val = balance $ Node c lTree val (ins rTree)
+                  | x < val  = balance $ Node c (ins lTree) val rTree
 
 -- Use rotation and re-painting to regain red-black property when we come across any case
 -- of a red node with a black parent and red child.
