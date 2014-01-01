@@ -8,6 +8,8 @@ data Color = R | B | BB deriving (Show, Eq)
 data Tree a = Empty Color
               | Node Color !(Tree a) a !(Tree a) deriving (Show, Eq)
 
+empty = Empty B
+
 insert :: Ord a => a -> Tree a -> Tree a
 insert x tree = toBlk $ ins tree
         where ins (Empty _) = Node R (Empty B) x (Empty B)
