@@ -108,7 +108,9 @@ pprint = putStrLn . concat . prnt
 
 checkInvariant :: Tree a -> Bool
 checkInvariant t = check t 0 
-    where check (Node R (Node R _ _ _) _ _) blkH = False
+    where check (Node BB _ _ _) _ = False
+          check (Empty BB) _ = False
+          check (Node R (Node R _ _ _) _ _) blkH = False
           check (Node R _ _ (Node R _ _ _)) blkH = False
           check (Node R l _ r) blkH = (check l blkH) && (check r blkH)
           check (Node B l _ r) blkH = (check l $ blkH + 1) && (check r $ blkH + 1) 
