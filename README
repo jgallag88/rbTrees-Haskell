@@ -1,2 +1,1 @@
-An implementation of red-black trees, based largely on Chris Okasaki's
-implementation in his book 'Purely Functional Data Structures'
+An implementation of red-black trees in Haskell. The insert method is based on Chris Okasaki's implementation in his book "Purely Functional Data Structures". The delete method borrows the idea of adding another node color, 'Double Black', which has the weight of two black nodes, from Matt Might (http://matt.might.net/articles/red-black-delete/), but the implementation is my own.
